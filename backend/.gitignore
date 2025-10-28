@@ -1,0 +1,62 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Env files (keep example)
+.env
+.env.*
+!.env.example
+
+# Build / output
+dist/
+build/
+out/
+tmp/
+temp/
+.nyc_output/
+coverage/
+coverage-report/
+
+# Logs
+logs/
+*.log
+
+# Runtime files
+pids/
+*.pid
+*.seed
+*.pid.lock
+*.sqlite
+*.sqlite3
+*.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Caches
+.cache/
+.cache-loader/
+.parcel-cache/
+
+# IDEs / editors
+.vscode/
+.idea/
+*.sublime-*
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker / deployment local overrides
+docker-compose.override.yml
+.docker/
+
+# Misc
+node-repl-history
