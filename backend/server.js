@@ -4,12 +4,14 @@ const userRoutes = require('./routes/userRoutes')
 // const cookieParser = require('cookie-parser')
 const cookieParser = require('cookie-parser')
 const eventRoutes = require('./routes/eventRoutes')
+const registrationRoutes = require('./routes/registrationRoutes')
 require('dotenv').config()
 
 app.use(express.json())
 app.use(cookieParser())
 app.use('/api/users',userRoutes)
 app.use('/api/events', eventRoutes);
+app.use('/api/registration', registrationRoutes);
 const connectDB = require('./config/db')
 const PORT = process.env.PORT
 connectDB().then(() => {

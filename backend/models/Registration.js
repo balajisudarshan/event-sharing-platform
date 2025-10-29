@@ -12,6 +12,12 @@ const registrationSchema = new mongoose.Schema({
         ref:'User',
         required:true
     },
+    ieeeId: {
+        type: String 
+    },
+    paymentScreenshot: {
+        type: String
+    },
     registeredAt:{
         type:Date,
         default:Date.now
