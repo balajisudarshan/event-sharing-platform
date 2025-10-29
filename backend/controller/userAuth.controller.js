@@ -57,9 +57,6 @@ const loginUser = async (req, res) => {
         console.log("Error in loginUser:", error);
     }
 }
-const user = async (Req, res) => {
-    console.log("User route accessed");
-}
 
 
 const promoteToAdmin = async (req, res) => {
