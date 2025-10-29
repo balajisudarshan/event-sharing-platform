@@ -3,7 +3,7 @@ const app = express()
 const userRoutes = require('./routes/userRoutes')
 // const cookieParser = require('cookie-parser')
 const cookieParser = require('cookie-parser')
-
+const eventRoutes = require('./routes/eventRoutes')
 require('dotenv').config()
 
 app.use(express.json())

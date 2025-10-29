@@ -85,4 +85,4 @@ const promoteToAdmin = async (req, res) => {
     }
 }
 
-module.exports = { registerUser, loginUser, user,promoteToAdmin };
+module.exports = { registerUser, loginUser,promoteToAdmin };
