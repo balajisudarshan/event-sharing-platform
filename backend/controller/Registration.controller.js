@@ -2,8 +2,9 @@ const Registration = require("../models/Registration");
 const Event = require("../models/Event");
 
 const createRegistration = async (req, res) => {
+  const { eventId } = req.params
   try {
-    const { eventId, ieeeId, paymentScreenshot } = req.body;
+    const { ieeeId, paymentScreenshot } = req.body;
     const userId = req.user.id;
     const event = await Event.findById(eventId);
 
@@ -63,8 +64,13 @@ const createRegistration = async (req, res) => {
 };
 
 const getRegistrations = async (req, res) => {
+  const { eventId } = req.params
+
   try {
-    const registrations = await Registration.find().populate('eventId').populate('userId');
+    const registrations = await Registration.find({eventId}).populate('eventId')
+    if(!registrations || registrations.length === 0){
+      return res.status(404).json({message:"No registrations found for this event"})
+    }
     res.status(200).json(registrations);
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

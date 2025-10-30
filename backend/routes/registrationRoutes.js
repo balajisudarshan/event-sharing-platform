@@ -4,8 +4,8 @@ const { createRegistration, getRegistrations, getRegistrationById, deleteRegistr
 const verifyToken = require('../middleware/verifyToken');
 
 
-router.post('/',verifyToken, createRegistration);
-router.get('/', verifyToken, getRegistrations);
+router.post('/:eventId',verifyToken, createRegistration);
+router.get('/:eventId', verifyToken, getRegistrations);
 router.get('/:id', verifyToken, getRegistrationById);
 router.delete('/:id', verifyToken, deleteRegistration);
 
