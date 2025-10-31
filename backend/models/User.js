@@ -20,7 +20,7 @@ const userSchema = mongoose.Schema({
         default:'USER'
     },
     promotedUntil:{
-        type:Date|null
+        type:Date
     },
     isIEEE:{
         type:Boolean,
