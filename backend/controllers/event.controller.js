@@ -65,7 +65,7 @@ const getEventById = async (req, res) => {
 
 const createEvent = async (req, res) => {
   try {
-    const { title, description, type, location, startDate, endDate, capacity } = req.body;
+    const { title, description, type, location, startDate, endDate, capacity,thumbnail,qrCode } = req.body;
     const organizer = req.user;
 
     if (
@@ -122,6 +122,8 @@ const createEvent = async (req, res) => {
       capacity: capacity || null,
       organizer: req.user._id,
       registeredCount: 0,
+      thumbnail,
+      qrCode
     });
 
     return res.status(201).json({

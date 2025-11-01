@@ -43,7 +43,13 @@ const eventSchema = mongoose.Schema({
     isActive: {
         type: Boolean,
         default: true
-    }
+    },
+    thumbnail:{
+        type:String
+    },
+    qrCode:{
+        type:String
+    },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);
