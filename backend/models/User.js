@@ -1,41 +1,57 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema({
-    name:{
-        type:String,
-        required:true
-    },
-    email:{
-        type:String,
-        required:true,
-        unique:true
-    },
-    password:{
-        type:String,
-        required:true
-    },
-    role:{
-        type:String,
-        enum:['USER','TEMP_ADMIN','SUPER_ADMIN'],
-        default:'USER'
-    },
-    promotedUntil:{
-        type:Date
-    },
-    isIEEE:{
-        type:Boolean,
-        default:false
-    },
-    branch:{
-        type:String,
-        enum:['CSE','AIDS','ECE','EEE','CIVIL','MECH'],
-        required:true
-    },
-    year:{
-        type:String,
-        min:1,
-        max:4
-    }
-},{timeStamps:true})
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  password: {
+    type: String,
+    required: true
+  },
+  role: {
+    type: String,
+    enum: ['USER', 'TEMP_ADMIN', 'SUPER_ADMIN'],
+    default: 'USER'
+  },
+  promotedUntil: {
+    type: Date
+  },
+  isIEEE: {
+    type: Boolean,
+    default: false
+  },
+  IEEE_ID: {
+    type: String,
+    unique: true,
+    sparse: true 
+  },
+  branch: {
+    type: String,
+    enum: ['CSE', 'AIDS', 'ECE', 'EEE', 'CIVIL', 'MECH'],
+    required: true
+  },
+  year: {
+    type: Number,
+    min: 1,
+    max: 4
+  }
+}, { timestamps: true });
 
-module.exports = new mongoose.model('User',userSchema)
+
+userSchema.pre("save", function (next) {
+  if (this.isIEEE && !this.IEEE_ID) {
+    const err = new Error("IEEE ID is required ");
+    
+    return next(err);
+
+  }
+  next();
+});
+
+module.exports = mongoose.model('User', userSchema);

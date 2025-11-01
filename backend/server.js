@@ -2,14 +2,16 @@ const express = require('express')
 require('dotenv').config()
 const connectToDb = require('./config/db')
 const authRouter = require('./routes/userAuth.routes')
+const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const app = express()
 
 app.use(express.json())
 app.use(cors())
-
+app.use(cookieParser())
+const baseApi = '/api/v1'
 // 😎 auth routes ekkada register chestham ra babu eswar
-app.use('/api/v1/auth', authRouter)
+app.use(`${baseApi}/auth`, authRouter)
 
 connectToDb().then(() => {
     // 🚀 Server start ayyindi le boss, sound ostundi port lo
