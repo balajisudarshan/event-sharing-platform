@@ -28,8 +28,8 @@ const userSchema = new mongoose.Schema({
   },
   IEEE_ID: {
     type: String,
-    unique: true,
-    sparse: true 
+    sparse: true,
+    default: undefined 
   },
   branch: {
     type: String,
@@ -44,12 +44,18 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 
-userSchema.pre("save", function (next) {
-  if (this.isIEEE && !this.IEEE_ID) {
-    const err = new Error("IEEE ID is required ");
-    
-    return next(err);
 
+userSchema.index({ IEEE_ID: 1 }, { unique: true, sparse: true });
+
+userSchema.pre("save", function (next) {
+  
+  if (this.IEEE_ID === null || this.IEEE_ID === '') {
+    this.IEEE_ID = undefined;
+  }
+  
+  if (this.isIEEE && !this.IEEE_ID) {
+    const err = new Error("IEEE ID is required");
+    return next(err);
   }
   next();
 });
