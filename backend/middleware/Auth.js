@@ -20,4 +20,19 @@ const AuthMiddleware = async(req,res,next)=>{
         return res.status(401).json({message:"Unauthorized"})
     }
 }
-module.exports = AuthMiddleware
+
+// Roles check chesthadi - admin a? user a? temporary hero a? 
+const authorizeRoles = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized - User info ledu " });
+    }
+
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Forbidden - Permission ledu ra mawa" });
+    }
+
+    next();
+  };
+};
+module.exports = { AuthMiddleware, authorizeRoles };

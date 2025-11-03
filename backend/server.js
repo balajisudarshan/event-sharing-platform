@@ -3,6 +3,7 @@ require('dotenv').config()
 const connectToDb = require('./config/db')
 const authRouter = require('./routes/userAuth.routes')
 const eventRouter = require('./routes/event.routes')
+const registrationRouter = require('./routes/registration.routes')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const app = express()
@@ -15,10 +16,12 @@ const baseApi = '/api/v1';
 app.use(`${baseApi}/auth`, authRouter)
 //event routes ekkada register chestham ra babu balu
 app.use(`${baseApi}/events`, eventRouter)
+//register routes raa oka sari chudu motham
+app.use(`${baseApi}/registrations`, require('./routes/registration.routes'))
 connectToDb().then(() => {
     // 🚀 Server start ayyindi le boss, sound ostundi port lo
     app.listen(process.env.PORT, () => {
-        console.log(`Server running on port ${process.env.PORT}`)
+        console.log(`Server running on port http://localhost:${process.env.PORT}`)
     })
 }).catch((err) => {
     // 💀 MongoDB edho drama chesthundi ra, check chesuko
