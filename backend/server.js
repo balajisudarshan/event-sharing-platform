@@ -17,7 +17,7 @@ app.use(`${baseApi}/auth`, authRouter)
 //event routes ekkada register chestham ra babu balu
 app.use(`${baseApi}/events`, eventRouter)
 //register routes raa oka sari chudu motham
-app.use(`${baseApi}/registrations`, require('./routes/registration.routes'))
+app.use(`${baseApi}/registrations`, registrationRouter)
 connectToDb().then(() => {
     // 🚀 Server start ayyindi le boss, sound ostundi port lo
     app.listen(process.env.PORT, () => {

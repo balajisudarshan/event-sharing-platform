@@ -32,7 +32,13 @@ const registerForEvent = async (req, res) => {
       });
 
       paymentScreenshot = upload.secure_url;
-      fs.unlinkSync(req.file.path);
+      
+      
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error("Error deleting temp file:", unlinkError);
+      }
     }
 
     const registration = await Registration.create({
@@ -52,7 +58,17 @@ const registerForEvent = async (req, res) => {
       registration,
     });
   } catch (err) {
-    console.error("❌ registerForEvent error:", err);
+    console.error("registerForEvent error:", err);
+    
+    
+    if (req.file && req.file.path) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (unlinkError) {
+        console.error("Error deleting temp file:", unlinkError);
+      }
+    }
+    
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
