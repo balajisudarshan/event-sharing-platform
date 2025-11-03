@@ -116,7 +116,7 @@ const updateRegistrationStatus = async (req, res) => {
 
     res.json({ message: "Status updated successfully", registration });
   } catch (err) {
-    console.error("❌ updateRegistrationStatus error:", err);
+    console.error(" updateRegistrationStatus error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -140,7 +140,7 @@ const cancelRegistration = async (req, res) => {
 
     res.json({ message: "Registration cancelled successfully" });
   } catch (err) {
-    console.error("❌ cancelRegistration error:", err);
+    console.error("cancelRegistration error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -157,7 +157,7 @@ const getUserRegistrations = async (req, res) => {
 
     res.json({ count: registrations.length, registrations });
   } catch (err) {
-    console.error("❌ getUserRegistrations error:", err);
+    console.error("getUserRegistrations error:", err);
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };

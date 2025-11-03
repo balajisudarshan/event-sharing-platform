@@ -1,5 +1,5 @@
 const Event = require("../models/Event");
-
+const Registration = require("../models/Registration");
 const getEvents = async (req, res) => {
   try {
     const { type, upcoming, page = 1, limit = 10, search } = req.query;
@@ -231,7 +231,7 @@ const deleteEvent = async (req, res) => {
     }
 
     await Registration.deleteMany({ event: eventId });
-    await event.remove();
+    await Event.findByIdAndDelete(eventId);
 
     return res.status(200).json({ message: "Event deleted successfully" });
   } catch (error) {
