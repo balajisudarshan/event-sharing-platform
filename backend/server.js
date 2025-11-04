@@ -14,16 +14,24 @@ app.use(cookieParser())
 const baseApi = '/api/v1';
 // 😎 auth routes ekkada register chestham ra babu eswar
 app.use(`${baseApi}/auth`, authRouter)
+app.use(`${baseApi}/auth`, authRouter)
 //event routes ekkada register chestham ra babu balu
 app.use(`${baseApi}/events`, eventRouter)
 //register routes raa oka sari chudu motham
 app.use(`${baseApi}/registrations`, registrationRouter)
-connectToDb().then(() => {
+
+// Only start server if not in test mode
+if (process.env.NODE_ENV !== 'test') {
+  connectToDb().then(() => {
     // 🚀 Server start ayyindi le boss, sound ostundi port lo
     app.listen(process.env.PORT, () => {
         console.log(`Server running on port http://localhost:${process.env.PORT}`)
     })
-}).catch((err) => {
+  }).catch((err) => {
     // 💀 MongoDB edho drama chesthundi ra, check chesuko
     console.log('Error connecting to server', err)
-})
+  })
+}
+
+// Export app for testing
+module.exports = app;
