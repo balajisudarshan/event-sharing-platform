@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
 
 
 
-userSchema.index({ IEEE_ID: 1 }, { unique: true, sparse: true });
+//userSchema.index({ IEEE_ID: 1 }, { unique: true, sparse: true });
 
 userSchema.pre("save", function (next) {
   
