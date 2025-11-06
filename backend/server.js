@@ -8,30 +8,34 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors')
 const app = express()
 
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  exposedHeaders: ["Content-Type", "Authorization"],
+}));
+
+
+
 app.use(express.json())
-app.use(cors())
 app.use(cookieParser())
-const baseApi = '/api/v1';
-// 😎 auth routes ekkada register chestham ra babu eswar
+
+const baseApi = '/api/v1'
+
+// ✅ Step 3: Register routes AFTER CORS
 app.use(`${baseApi}/auth`, authRouter)
-app.use(`${baseApi}/auth`, authRouter)
-//event routes ekkada register chestham ra babu balu
 app.use(`${baseApi}/events`, eventRouter)
-//register routes raa oka sari chudu motham
 app.use(`${baseApi}/registrations`, registrationRouter)
 
-// Only start server if not in test mode
 if (process.env.NODE_ENV !== 'test') {
   connectToDb().then(() => {
-    // 🚀 Server start ayyindi le boss, sound ostundi port lo
     app.listen(process.env.PORT, () => {
-        console.log(`Server running on port http://localhost:${process.env.PORT}`)
+      console.log(`Server running on port http://localhost:${process.env.PORT}`)
     })
   }).catch((err) => {
-    // 💀 MongoDB edho drama chesthundi ra, check chesuko
     console.log('Error connecting to server', err)
   })
 }
 
-// Export app for testing
-module.exports = app;
+module.exports = app

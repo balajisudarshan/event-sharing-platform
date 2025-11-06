@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  studentId:{
+    type:String,
+    required:true,
+    unique:true
+  },
   role: {
     type: String,
     enum: ['USER', 'TEMP_ADMIN', 'SUPER_ADMIN'],

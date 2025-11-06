@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-
+import { useContext } from 'react'
+import { AuthContext } from '../context/AuthContext'
 const NavBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
-
+  const {isLoggedIn,user,logOut} = useContext(AuthContext)
   return (
     <>
       <nav className="navbar bg-primary  text-base-100 shadow-lg sticky top-0 z-50">
@@ -13,7 +14,7 @@ const NavBar = () => {
         </div>
         <div className="flex-none">
           <div className="hidden lg:flex lg:items-center lg:gap-8">
-            {['Home', 'About', 'Contact', 'Login', 'Register'].map((item) => (
+            {['Home', 'About', 'Contact'].map((item) => (
               <a
                 key={item}
                 href={`/${item.toLowerCase() === 'home' ? '' : item.toLowerCase()}`}
@@ -22,6 +23,34 @@ const NavBar = () => {
                 {item}
               </a>
             ))}
+            {isLoggedIn ? (
+              <>
+                <span className="text-base font-semibold text-base-100">
+                  {user?.name || user?.email || 'User'}
+                </span>
+                <button
+                  onClick={logOut}
+                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full cursor-pointer"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <a
+                  href="/login"
+                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  Login
+                </a>
+                <a
+                  href="/register"
+                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full"
+                >
+                  Register
+                </a>
+              </>
+            )}
           </div>
 
           <div className="lg:hidden">
@@ -55,9 +84,7 @@ const NavBar = () => {
             {[
               { name: 'Home', href: '/' },
               { name: 'About', href: '/about' },
-              { name: 'Contact', href: '/contact' },
-              { name: 'Login', href: '/login' },
-              { name: 'Register', href: '/register' }
+              { name: 'Contact', href: '/contact' }
             ].map((item) => (
               <li key={item.name}>
                 <a
@@ -69,6 +96,47 @@ const NavBar = () => {
                 </a>
               </li>
             ))}
+            {isLoggedIn ? (
+              <>
+                <li>
+                  <div className="text-base font-medium text-base-100 px-4 py-2">
+                    {user?.name || user?.email || 'User'}
+                  </div>
+                </li>
+                <li>
+                  <button
+                    onClick={() => {
+                      logOut()
+                      setIsSidebarOpen(false)
+                    }}
+                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95 w-full text-left px-4 py-2"
+                  >
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <a
+                    href="/login"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
+                  >
+                    Login
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="/register"
+                    onClick={() => setIsSidebarOpen(false)}
+                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
+                  >
+                    Register
+                  </a>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

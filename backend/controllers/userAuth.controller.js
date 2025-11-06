@@ -2,10 +2,10 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
-  const { name, email, password, role, promotedUntil, isIEEE, IEEE_ID, branch, year } = req.body;
+  const { name, email, password,studentId, role, promotedUntil, isIEEE, IEEE_ID, branch, year } = req.body;
 
   try {
-    const isExistedUser = await User.findOne({ email }); //eyy donga
+    const isExistedUser = await User.findOne({ $or: [{ email }, { studentId }] }); //eyy donga
     if (isExistedUser) {
       return res.status(400).json({ message: "User already exist" }); // donga dorikadu login avvu
     }
@@ -16,6 +16,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      studentId,
       role,
       promotedUntil,
       isIEEE,
@@ -140,4 +141,20 @@ const promoteUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, logoutUser, getUserProfile, promoteUser };
+
+const checkAuth = async(req,res)=>{
+  const token = req.cookies.token
+
+  if(!token){
+    return res.status(401).json({loggedIn:false})
+  }
+
+  try {
+    const decoded = jwt.verify(token,process.env.JWT_SECRET)
+    return res.status(200).json({loggedIn:true,user:decoded})
+  } catch (error) {
+    return res.status(401).json({loggedIn:false})
+  }
+
+}
+module.exports = { registerUser, loginUser, logoutUser, getUserProfile, promoteUser,checkAuth };
