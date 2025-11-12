@@ -12,10 +12,11 @@ const registerForEvent = async (req, res) => {
 
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
-
+    console.log(userId)
     const existing = await Registration.findOne({ event: eventId, user: userId });
+    console.log(existing)
+    
     if (existing) return res.status(400).json({ message: "Already registered" });
-
     let paymentScreenshot = null;
     let status = "PENDING_PAYMENT";
 

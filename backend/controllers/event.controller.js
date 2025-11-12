@@ -251,8 +251,8 @@ const getEventRegistrations = async (req, res) => {
 
     const isOrganizer = event.organizer.toString() === user._id.toString();
     const isSuperAdmin = user.role === "SUPER_ADMIN";
-
-    if (!isOrganizer && !isSuperAdmin) {
+    const isTempAdmin = user.role === "TEMP_ADMOM";
+    if (!isOrganizer && !isSuperAdmin && !isTempAdmin) {
       return res
         .status(403)
         .json({ message: "You are not authorized to view these registrations" });

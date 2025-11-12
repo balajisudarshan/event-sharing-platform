@@ -6,12 +6,12 @@ const AuthMiddleware = async(req,res,next)=>{
     let token = req.cookies.token
     
     // If no cookie token, check Authorization header
-    if (!token && req.headers.authorization) {
-        const authHeader = req.headers.authorization
-        if (authHeader.startsWith('Bearer ')) {
-            token = authHeader.substring(7)
-        }
-    }
+    // if (!token && req.headers.authorization) {
+    //     const authHeader = req.headers.authorization
+    //     if (authHeader.startsWith('Bearer ')) {
+    //         token = authHeader.substring(7)
+    //     }
+    // }
     
     if(!token){
         return res.status(401).json({message:"Unauthorized"})

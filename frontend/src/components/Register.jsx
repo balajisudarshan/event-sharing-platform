@@ -18,7 +18,7 @@ const Register = () => {
 
   const API_URL = import.meta.env.VITE_API_URL
 
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
 
   const branches = [
@@ -212,9 +212,9 @@ const Register = () => {
           {/* -------------------- FOOTER SECTION -------------------- */}
           <div className="text-center">
             <p className="text-base-content/70">
-              Don't have an account?{' '}
-              <a href="/register" className="link link-primary font-semibold hover:link-hover">
-                Register here
+              Already have an account?{' '}
+              <a href="/login" className="link link-primary font-semibold hover:link-hover">
+                Login here
               </a>
             </p>
           </div>

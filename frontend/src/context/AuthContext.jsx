@@ -9,12 +9,20 @@ export const AuthProvider = ({children})=>{
     const API_URL = import.meta.env.VITE_API_URL
 
     useEffect(()=>{
-        const storedUser = localStorage.getItem("user")
+        const checkAuth = async()=>{
+            try {
+                const res = await axios.get(`${API_URL}/auth/me`,{withCredentials:true})
+                localStorage.setItem("user",JSON.stringify(res.data.user))
+                setUser(res.data.user)
+                setIsLoggedIn(true)
 
-        if(storedUser){
-            setUser(JSON.parse(storedUser))
-            setIsLoggedIn(true)
+            } catch (error) {
+                localStorage.removeItem("user")
+                setIsLoggedIn(false)
+                setUser(null)
+            }
         }
+        checkAuth()
     },[])
 
 
@@ -26,18 +34,18 @@ export const AuthProvider = ({children})=>{
     
     const logOut = async () => {
         try {
-            // Call backend logout API to clear the cookie
+            
             await axios.post(`${API_URL}/api/v1/auth/logout`, {}, {
                 withCredentials: true
             })
         } catch (error) {
             console.error('Logout error:', error)
         } finally {
-            // Clear local state regardless of API call success
+            
             localStorage.removeItem("user")
             setUser(null)
             setIsLoggedIn(false)
-            // Redirect to home page
+            
             window.location.href = '/'
         }
     }

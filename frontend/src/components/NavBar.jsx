@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useContext } from 'react'
+import { Link } from '@tanstack/react-router'
 import { AuthContext } from '../context/AuthContext'
 const NavBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -14,20 +15,18 @@ const NavBar = () => {
         </div>
         <div className="flex-none">
           <div className="hidden lg:flex lg:items-center lg:gap-8">
-            {['Home', 'About', 'Contact'].map((item) => (
-              <a
-                key={item}
-                href={`/${item.toLowerCase() === 'home' ? '' : item.toLowerCase()}`}
-                className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full"
-              >
-                {item}
-              </a>
-            ))}
+            <Link
+              to="/"
+              className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full [&.active]:after:w-full"
+            >
+              Home
+            </Link>
             {isLoggedIn ? (
               <>
-                <span className="text-base font-semibold text-base-100">
-                  {user?.name || user?.email || 'User'}
-                </span>
+
+                <button className='relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full cursor-pointer'>
+                  Dashboard
+                </button>
                 <button
                   onClick={logOut}
                   className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full cursor-pointer"
@@ -37,18 +36,18 @@ const NavBar = () => {
               </>
             ) : (
               <>
-                <a
-                  href="/login"
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full"
+                <Link
+                  to="/login"
+                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full [&.active]:after:w-full"
                 >
                   Login
-                </a>
-                <a
-                  href="/register"
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full"
+                </Link>
+                <Link
+                  to="/register"
+                  className="relative text-base font-semibold transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 after:transition-all after:duration-300 hover:after:w-full [&.active]:after:w-full"
                 >
                   Register
-                </a>
+                </Link>
               </>
             )}
           </div>
@@ -81,21 +80,15 @@ const NavBar = () => {
             </button>
           </div>
           <ul className="menu p-4 space-y-2">
-            {[
-              { name: 'Home', href: '/' },
-              { name: 'About', href: '/about' },
-              { name: 'Contact', href: '/contact' }
-            ].map((item) => (
-              <li key={item.name}>
-                <a
-                  href={item.href}
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
-                >
-                  {item.name}
-                </a>
-              </li>
-            ))}
+            <li>
+              <Link
+                to="/"
+                onClick={() => setIsSidebarOpen(false)}
+                className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
+              >
+                Home
+              </Link>
+            </li>
             {isLoggedIn ? (
               <>
                 <li>
@@ -118,22 +111,22 @@ const NavBar = () => {
             ) : (
               <>
                 <li>
-                  <a
-                    href="/login"
+                  <Link
+                    to="/login"
                     onClick={() => setIsSidebarOpen(false)}
                     className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
                   >
                     Login
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="/register"
+                  <Link
+                    to="/register"
                     onClick={() => setIsSidebarOpen(false)}
                     className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all duration-200 active:scale-95"
                   >
                     Register
-                  </a>
+                  </Link>
                 </li>
               </>
             )}
