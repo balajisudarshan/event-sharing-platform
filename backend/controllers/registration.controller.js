@@ -1,8 +1,8 @@
-const fs = require("fs");
+// const fs = require("fs");
 const Registration = require("../models/Registration");
 const Event = require("../models/Event");
 const User = require("../models/User");
-const cloudinary = require("../config/cloudinary");
+// const cloudinary = require("../config/cloudinary");
 
 
 const registerForEvent = async (req, res) => {
@@ -12,44 +12,45 @@ const registerForEvent = async (req, res) => {
 
     const event = await Event.findById(eventId);
     if (!event) return res.status(404).json({ message: "Event not found" });
-    console.log(userId)
+    if (event.capacity && event.registeredCount >= event.capacity) {
+      return res.status(400).json({ message: "Event is full" });
+    }
+    
     const existing = await Registration.findOne({ event: eventId, user: userId });
-    console.log(existing)
     
     if (existing) return res.status(400).json({ message: "Already registered" });
-    let paymentScreenshot = null;
-    let status = "PENDING_PAYMENT";
-
     
-    if (event.type === "IEEE" && req.user.isIEEE) {
+    const { payment_transaction_id } = req.body || {};
+    let status = "AWAITING_CONFIRMATION";
+
+    if (event.type === "FREE") {
       status = "REGISTERED";
-    } else {
-      if (!req.file) {
-        return res.status(400).json({ message: "Payment screenshot required" });
+    }
+    else if (event.type === "IEEE") {
+      if (req.user.isIEEE) {
+        status = "REGISTERED";
+      }
+      else{
+        if (!payment_transaction_id) {
+          return res.status(400).json({ message: "Payment id required for non-IEEE members" });
+        }
+        status = "AWAITING_CONFIRMATION";
+      }
+    } 
+    else {
+      if (!payment_transaction_id) {
+        return res.status(400).json({ message: "Payment id required" });
       }
 
-      const upload = await cloudinary.uploader.upload(req.file.path, {
-        folder: "event_payments",
-      });
-
-      paymentScreenshot = upload.secure_url;
+      status = "AWAITING_CONFIRMATION";
       
-      
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkError) {
-        console.error("Error deleting temp file:", unlinkError);
-      }
     }
 
     const registration = await Registration.create({
       event: eventId,
       user: userId,
       status,
-      payment: {
-        mode: paymentScreenshot ? "ONLINE" : "NONE",
-        screenshotUrl: paymentScreenshot,
-      },
+      payment_transaction_id: payment_transaction_id || undefined,
     });
 
     await Event.findByIdAndUpdate(eventId, { $inc: { registeredCount: 1 } });
@@ -62,50 +63,42 @@ const registerForEvent = async (req, res) => {
     console.error("registerForEvent error:", err);
     
     
-    if (req.file && req.file.path) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (unlinkError) {
-        console.error("Error deleting temp file:", unlinkError);
-      }
-    }
-    
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
 
 
-const spotRegister = async (req, res) => {
-  try {
-    const { id: eventId } = req.params;
-    const userId = req.user._id;
+// const spotRegister = async (req, res) => {
+//   try {
+//     const { id: eventId } = req.params;
+//     const userId = req.user._id;
 
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: "Event not found" });
+//     const event = await Event.findById(eventId);
+//     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const existing = await Registration.findOne({ event: eventId, user: userId });
-    if (existing) return res.status(400).json({ message: "Already registered" });
+//     const existing = await Registration.findOne({ event: eventId, user: userId });
+//     if (existing) return res.status(400).json({ message: "Already registered" });
 
-    // collector chedam anukunna kudarala
-    const registration = await Registration.create({
-      event: eventId,
-      user: userId,
-      status: "AWAITING_CONFIRMATION", 
-      payment: { mode: "OFFLINE", screenshotUrl: null },
-    });
+//     // collector chedam anukunna kudarala
+//     const registration = await Registration.create({
+//       event: eventId,
+//       user: userId,
+//       status: "AWAITING_CONFIRMATION", 
+//       payment: { mode: "OFFLINE", screenshotUrl: null },
+//     });
 
-    await Event.findByIdAndUpdate(eventId, { $inc: { registeredCount: 1 } });
+//     await Event.findByIdAndUpdate(eventId, { $inc: { registeredCount: 1 } });
 
-    res.status(201).json({
-      message: "Spot registration recorded successfully",
-      registration,
-    });
-  } catch (err) {
-    console.error("❌ spotRegister error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
+//     res.status(201).json({
+//       message: "Spot registration recorded successfully",
+//       registration,
+//     });
+//   } catch (err) {
+//     console.error("❌ spotRegister error:", err);
+//     res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
 
 
 
@@ -117,7 +110,7 @@ const updateRegistrationStatus = async (req, res) => {
     const { regId } = req.params;
     const { status } = req.body;
 
-    const valid = ["REGISTERED", "PENDING_PAYMENT", "AWAITING_CONFIRMATION"];
+    const valid = ["REGISTERED", "AWAITING_CONFIRMATION"];
     if (!valid.includes(status)) {
       return res.status(400).json({ message: "Invalid status" });
     }
@@ -144,6 +137,9 @@ const updateRegistrationStatus = async (req, res) => {
 const cancelRegistration = async (req, res) => {
   try {
     const { id: eventId, userId } = req.params;
+    if (req.user._id.toString() !== userId && req.user.role !== "SUPER_ADMIN" && req.user.role !== "TEMP_ADMIN") {
+      return res.status(403).json({ message: "Forbidden - Cannot cancel for other users" });
+    }
 
     const registration = await Registration.findOneAndDelete({
       event: eventId,
@@ -167,6 +163,11 @@ const cancelRegistration = async (req, res) => {
 const getUserRegistrations = async (req, res) => {
   try {
     const { id: userId } = req.params;
+    if (userId !== req.user._id.toString() && 
+        req.user.role !== 'SUPER_ADMIN' && 
+        req.user.role !== 'TEMP_ADMIN') {
+      return res.status(403).json({ message: "Forbidden" });
+    }
 
     const registrations = await Registration.find({ user: userId })
       .populate("event", "title type startDate endDate location")
@@ -181,7 +182,7 @@ const getUserRegistrations = async (req, res) => {
 
 module.exports = {
   registerForEvent,
-  spotRegister,
+  // spotRegister,
   updateRegistrationStatus,
   cancelRegistration,
   getUserRegistrations,

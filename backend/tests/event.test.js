@@ -16,6 +16,7 @@ describe('Event API Tests', () => {
       name: 'Super Admin',
       email: 'superadmin@test.com',
       password: 'AdminPass123!',
+      studentId: 'STU201',
       role: 'SUPER_ADMIN',
       branch: 'CSE',
       year: 4
@@ -24,6 +25,7 @@ describe('Event API Tests', () => {
       name: 'Temp Admin',
       email: 'tempadmin@test.com',
       password: 'TempPass123!',
+      studentId: 'STU202',
       role: 'TEMP_ADMIN',
       promotedUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
       branch: 'ECE',
@@ -33,6 +35,7 @@ describe('Event API Tests', () => {
       name: 'Regular User',
       email: 'user@test.com',
       password: 'UserPass123!',
+      studentId: 'STU203',
       branch: 'AIDS',
       year: 2
     }

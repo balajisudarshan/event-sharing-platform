@@ -12,6 +12,7 @@ describe('Authentication API Tests', () => {
       name: 'Test User',
       email: 'testuser@example.com',
       password: 'Password123!',
+      studentId: 'STU101',
       branch: 'CSE',
       year: 2,
       isIEEE: false
@@ -20,6 +21,7 @@ describe('Authentication API Tests', () => {
       name: 'Super Admin',
       email: 'superadmin@example.com',
       password: 'AdminPass123!',
+      studentId: 'STU102',
       role: 'SUPER_ADMIN',
       branch: 'CSE',
       year: 4,
@@ -30,6 +32,7 @@ describe('Authentication API Tests', () => {
       name: 'IEEE Member',
       email: 'ieee@example.com',
       password: 'IEEEPass123!',
+      studentId: 'STU103',
       branch: 'ECE',
       year: 3,
       isIEEE: true,
@@ -115,6 +118,7 @@ describe('Authentication API Tests', () => {
         name: 'AIDS Student',
         email: 'aids@example.com',
         password: 'AIDSPass123!',
+        studentId: 'STU104',
         branch: 'AIDS',
         year: 1
       };
@@ -277,6 +281,7 @@ describe('Authentication API Tests', () => {
         name: 'User To Promote',
         email: 'promote@example.com',
         password: 'Password123!',
+        studentId: 'STU105',
         branch: 'CSE',
         year: 4
       };

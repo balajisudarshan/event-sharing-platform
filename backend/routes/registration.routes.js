@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../middleware/multer").upload;
+// const upload = require("../middleware/multer").upload;
 const { AuthMiddleware, authorizeRoles } = require("../middleware/Auth");
 const {
   registerForEvent,
-  spotRegister,
+  // spotRegister,
   updateRegistrationStatus,
   cancelRegistration,
   getUserRegistrations,
@@ -14,16 +14,15 @@ router.post(
   "/events/:id/register",
   AuthMiddleware,
   authorizeRoles("USER"),
-  upload.single("image"),
   registerForEvent
 );
 
-router.post(
-  "/events/:id/spot-register",
-  AuthMiddleware,
-  authorizeRoles("USER"),
-  spotRegister
-);
+// router.post(
+//   "/events/:id/spot-register",
+//   AuthMiddleware,
+//   authorizeRoles("USER"),
+//   spotRegister
+// );
 
 router.patch(
   "/registrations/:regId/status",
