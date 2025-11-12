@@ -2,7 +2,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const registerUser = async (req, res) => {
-  const { name, email, password,studentId, role, promotedUntil, isIEEE, IEEE_ID, branch, year } = req.body;
+  const { name, email, password, studentId, role, promotedUntil, isIEEE, IEEE_ID, branch, year } = req.body;
 
   try {
     const isExistedUser = await User.findOne({ $or: [{ email }, { studentId }] }); //eyy donga
@@ -58,7 +58,12 @@ const loginUser = async (req, res) => {
   }
 }
 const logoutUser = async (req, res) => {
-  res.clearCookie('token')
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: true, // or false if you are testing locally with HTTP
+    sameSite: 'none', // must match your login cookie
+    path: '/', // ensure this matches your cookie's path
+  })
   return res.status(200).json({ message: "Logout successful" })
 }
 
@@ -82,7 +87,7 @@ const getUserProfile = async (req, res) => {
 
 const promoteUser = async (req, res) => {
   const { role, userId } = req.params;
-  const {  until } = req.body;
+  const { until } = req.body;
 
   try {
     if (req.user.role !== 'SUPER_ADMIN') {
@@ -141,19 +146,19 @@ const promoteUser = async (req, res) => {
 };
 
 
-const checkAuth = async(req,res)=>{
+const checkAuth = async (req, res) => {
   const token = req.cookies.token
 
-  if(!token){
-    return res.status(401).json({loggedIn:false})
+  if (!token) {
+    return res.status(401).json({ loggedIn: false })
   }
 
   try {
-    const decoded = jwt.verify(token,process.env.JWT_SECRET)
-    return res.status(200).json({loggedIn:true,user:decoded})
+    const decoded = jwt.verify(token, process.env.JWT_SECRET)
+    return res.status(200).json({ loggedIn: true, user: decoded })
   } catch (error) {
-    return res.status(401).json({loggedIn:false})
+    return res.status(401).json({ loggedIn: false })
   }
 
 }
-module.exports = { registerUser, loginUser, logoutUser, getUserProfile, promoteUser,checkAuth };
+module.exports = { registerUser, loginUser, logoutUser, getUserProfile, promoteUser, checkAuth };

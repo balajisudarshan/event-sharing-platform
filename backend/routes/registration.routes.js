@@ -18,12 +18,7 @@ router.post(
   registerForEvent
 );
 
-router.post(
-  "/events/:id/spot-register",
-  AuthMiddleware,
-  authorizeRoles("USER"),
-  spotRegister
-);
+
 
 router.patch(
   "/registrations/:regId/status",

@@ -251,7 +251,7 @@ const getEventRegistrations = async (req, res) => {
 
     const isOrganizer = event.organizer.toString() === user._id.toString();
     const isSuperAdmin = user.role === "SUPER_ADMIN";
-    const isTempAdmin = user.role === "TEMP_ADMOM";
+    const isTempAdmin = user.role === "TEMP_ADMIN";
     if (!isOrganizer && !isSuperAdmin && !isTempAdmin) {
       return res
         .status(403)

@@ -76,36 +76,36 @@ const registerForEvent = async (req, res) => {
 
 
 
-const spotRegister = async (req, res) => {
-  try {
-    const { id: eventId } = req.params;
-    const userId = req.user._id;
+// const spotRegister = async (req, res) => {
+//   try {
+//     const { id: eventId } = req.params;
+//     const userId = req.user._id;
 
-    const event = await Event.findById(eventId);
-    if (!event) return res.status(404).json({ message: "Event not found" });
+//     const event = await Event.findById(eventId);
+//     if (!event) return res.status(404).json({ message: "Event not found" });
 
-    const existing = await Registration.findOne({ event: eventId, user: userId });
-    if (existing) return res.status(400).json({ message: "Already registered" });
+//     const existing = await Registration.findOne({ event: eventId, user: userId });
+//     if (existing) return res.status(400).json({ message: "Already registered" });
 
-    // collector chedam anukunna kudarala
-    const registration = await Registration.create({
-      event: eventId,
-      user: userId,
-      status: "AWAITING_CONFIRMATION", 
-      payment: { mode: "OFFLINE", screenshotUrl: null },
-    });
+//     // collector chedam anukunna kudarala
+//     const registration = await Registration.create({
+//       event: eventId,
+//       user: userId,
+//       status: "AWAITING_CONFIRMATION", 
+//       payment: { mode: "OFFLINE", screenshotUrl: null },
+//     });
 
-    await Event.findByIdAndUpdate(eventId, { $inc: { registeredCount: 1 } });
+//     await Event.findByIdAndUpdate(eventId, { $inc: { registeredCount: 1 } });
 
-    res.status(201).json({
-      message: "Spot registration recorded successfully",
-      registration,
-    });
-  } catch (err) {
-    console.error("❌ spotRegister error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
-  }
-};
+//     res.status(201).json({
+//       message: "Spot registration recorded successfully",
+//       registration,
+//     });
+//   } catch (err) {
+//     console.error("❌ spotRegister error:", err);
+//     res.status(500).json({ message: "Server error", error: err.message });
+//   }
+// };
 
 
 
@@ -181,7 +181,6 @@ const getUserRegistrations = async (req, res) => {
 
 module.exports = {
   registerForEvent,
-  spotRegister,
   updateRegistrationStatus,
   cancelRegistration,
   getUserRegistrations,
