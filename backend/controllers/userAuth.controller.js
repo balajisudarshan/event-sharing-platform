@@ -6,7 +6,7 @@ const registerUser = async (req, res) => {
 
   try {
     const isExistedUser = await User.findOne({ $or: [{ email }, { studentId }] }); //eyy donga
-    if (isExistedUser) {
+    if (isExistedUser) {  
       return res.status(400).json({ message: "User already exist" }); // donga dorikadu login avvu
     }
 
@@ -47,29 +47,21 @@ const loginUser = async (req, res) => {
     const { password: _, ...userWithoutPassword } = user.toObject();
     const token = jwt.sign({ user: userWithoutPassword }, process.env.JWT_SECRET)
 
-    res.cookie('token', token, {
-      httpOnly: true,
-      expires: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000) //5 days ra eswar
-    })
+    
     return res.status(200).json({ message: "Login successful", user: userWithoutPassword, token: token })
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" })
   }
 }
-const logoutUser = async (req, res) => {
-  res.clearCookie('token', {
-    httpOnly: true,
-    secure: true, // or false if you are testing locally with HTTP
-    sameSite: 'none', // must match your login cookie
-    path: '/', // ensure this matches your cookie's path
-  })
-  return res.status(200).json({ message: "Logout successful" })
-}
+
 
 const getUserProfile = async (req, res) => {
   const user = req.user
   try {
+
+   
+
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" })
     }
@@ -147,18 +139,18 @@ const promoteUser = async (req, res) => {
 
 
 const checkAuth = async (req, res) => {
-  const token = req.cookies.token
-
-  if (!token) {
-    return res.status(401).json({ loggedIn: false })
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    return res.status(200).json({ loggedIn: true, user: decoded })
+    const user = req.user
+    if(!user){
+      return res.status(401).json({loggedIn:false,message:"Unauthoried"})
+    }
+
+    const {password,...userWithoutPassword} = user.toObject()
+    return res.status(200).json({loggedIn:true,user:userWithoutPassword})
   } catch (error) {
-    return res.status(401).json({ loggedIn: false })
+    console.error(error)
+    return res.status(500).json({loggedIn:false,message:"Internal server error"})
   }
 
 }
-module.exports = { registerUser, loginUser, logoutUser, getUserProfile, promoteUser, checkAuth };
+module.exports = { registerUser, loginUser, getUserProfile, promoteUser, checkAuth };

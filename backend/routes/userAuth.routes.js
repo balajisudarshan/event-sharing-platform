@@ -1,11 +1,10 @@
 const express = require('express')
 const router = express.Router()
-const {registerUser,loginUser,logoutUser,getUserProfile,promoteUser,checkAuth} = require('../controllers/userAuth.controller')
+const {registerUser,loginUser,getUserProfile,promoteUser,checkAuth} = require('../controllers/userAuth.controller')
 const { AuthMiddleware } = require('../middleware/Auth')
 router.post('/register',registerUser)
 router.post('/login',loginUser)
-router.post('/logout',logoutUser)
-router.get('/check-auth',checkAuth)
+router.get('/check-auth',AuthMiddleware,checkAuth)
 router.get('/me',AuthMiddleware,getUserProfile)
 router.post('/promote/:role/:userId',AuthMiddleware,promoteUser)
 module.exports = router
