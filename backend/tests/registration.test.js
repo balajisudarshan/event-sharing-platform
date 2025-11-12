@@ -20,6 +20,7 @@ describe('Registration API Tests', () => {
       name: 'Regular User',
       email: 'reguser@test.com',
       password: 'UserPass123!',
+      studentId: 'STU001',
       branch: 'CSE',
       year: 2,
       isIEEE: false
@@ -28,6 +29,7 @@ describe('Registration API Tests', () => {
       name: 'IEEE Member',
       email: 'ieeemember@test.com',
       password: 'IEEEPass123!',
+      studentId: 'STU002',
       branch: 'ECE',
       year: 3,
       isIEEE: true,
@@ -37,6 +39,7 @@ describe('Registration API Tests', () => {
       name: 'Super Admin',
       email: 'sadmin@test.com',
       password: 'AdminPass123!',
+      studentId: 'STU003',
       role: 'SUPER_ADMIN',
       branch: 'CSE',
       year: 4
@@ -45,6 +48,7 @@ describe('Registration API Tests', () => {
       name: 'Temp Admin',
       email: 'tadmin@test.com',
       password: 'TempPass123!',
+      studentId: 'STU004',
       role: 'TEMP_ADMIN',
       promotedUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       branch: 'AIDS',
@@ -101,21 +105,21 @@ describe('Registration API Tests', () => {
     tempAdminToken = tempAdminLogin.body.token;
 
     // Create events
-    const generalEvent = {
+    const freeEvent = {
       title: 'Free General Workshop',
-      description: 'This is a free general workshop open to all students',
-      type: 'GENERAL',
+      description: 'This is a free workshop open to all students',
+      type: 'FREE',
       location: 'Main Hall',
       startDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
       endDate: new Date(Date.now() + 11 * 24 * 60 * 60 * 1000).toISOString(),
       capacity: 100
     };
 
-    const generalEventRes = await request(app)
+    const freeEventRes = await request(app)
       .post('/api/v1/events')
       .set('Authorization', `Bearer ${superAdminToken}`)
-      .send(generalEvent);
-    generalEventId = generalEventRes.body.data._id;
+      .send(freeEvent);
+    generalEventId = freeEventRes.body.data._id;
 
     const ieeeEvent = {
       title: 'IEEE Technical Seminar',
@@ -149,41 +153,7 @@ describe('Registration API Tests', () => {
       .send(paidEvent);
     paidEventId = paidEventRes.body.data._id;
 
-    // Create a dummy image file for testing
-    const uploadsDir = path.join(__dirname, '..', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    
-    const testImagePath = path.join(uploadsDir, 'test-payment.jpg');
-    if (!fs.existsSync(testImagePath)) {
-      // Create a valid minimal JPEG image (1x1 pixel red)
-      const validJpeg = Buffer.from([
-        0xFF, 0xD8, 0xFF, 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01,
-        0x01, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0xFF, 0xDB, 0x00, 0x43,
-        0x00, 0x08, 0x06, 0x06, 0x07, 0x06, 0x05, 0x08, 0x07, 0x07, 0x07, 0x09,
-        0x09, 0x08, 0x0A, 0x0C, 0x14, 0x0D, 0x0C, 0x0B, 0x0B, 0x0C, 0x19, 0x12,
-        0x13, 0x0F, 0x14, 0x1D, 0x1A, 0x1F, 0x1E, 0x1D, 0x1A, 0x1C, 0x1C, 0x20,
-        0x24, 0x2E, 0x27, 0x20, 0x22, 0x2C, 0x23, 0x1C, 0x1C, 0x28, 0x37, 0x29,
-        0x2C, 0x30, 0x31, 0x34, 0x34, 0x34, 0x1F, 0x27, 0x39, 0x3D, 0x38, 0x32,
-        0x3C, 0x2E, 0x33, 0x34, 0x32, 0xFF, 0xC0, 0x00, 0x0B, 0x08, 0x00, 0x01,
-        0x00, 0x01, 0x01, 0x01, 0x11, 0x00, 0xFF, 0xC4, 0x00, 0x14, 0x00, 0x01,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x03, 0xFF, 0xC4, 0x00, 0x14, 0x10, 0x01, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0xFF, 0xDA, 0x00, 0x08, 0x01, 0x01, 0x00, 0x00, 0x3F, 0x00,
-        0x37, 0xFF, 0xD9
-      ]);
-      fs.writeFileSync(testImagePath, validJpeg);
-    }
-  });
-
-  afterAll(async () => {
-    // Clean up test files
-    const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
-    if (fs.existsSync(testImagePath)) {
-      fs.unlinkSync(testImagePath);
-    }
+    // No need for dummy image file anymore - using payment_transaction_id
   });
 
   describe('POST /events/:id/register - Register for Event', () => {
@@ -195,34 +165,41 @@ describe('Registration API Tests', () => {
 
       expect(response.body).toHaveProperty('message', 'Registration successful');
       expect(response.body.registration).toHaveProperty('status', 'REGISTERED');
-      expect(response.body.registration.payment).toHaveProperty('mode', 'NONE');
       expect(response.body.registration).toHaveProperty('event', ieeeEventId);
       expect(response.body.registration).toHaveProperty('user', ieeeUserId);
     });
 
-    test('Should register regular user for GENERAL event with payment screenshot', async () => {
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
-      
+    test('Should register user for FREE event without payment', async () => {
       const response = await request(app)
-        .post(`${baseUrl}/events/${paidEventId}/register`)
+        .post(`${baseUrl}/events/${generalEventId}/register`)
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('image', testImagePath)
         .expect(201);
 
       expect(response.body).toHaveProperty('message', 'Registration successful');
-      expect(response.body.registration).toHaveProperty('status', 'PENDING_PAYMENT');
-      expect(response.body.registration.payment).toHaveProperty('mode', 'ONLINE');
-      expect(response.body.registration.payment).toHaveProperty('screenshotUrl');
+      expect(response.body.registration).toHaveProperty('status', 'REGISTERED');
+    });
+
+    test('Should register regular user for GENERAL paid event with payment_transaction_id', async () => {
+      const response = await request(app)
+        .post(`${baseUrl}/events/${paidEventId}/register`)
+        .set('Authorization', `Bearer ${userToken}`)
+        .send({ payment_transaction_id: 'TXN123456789' })
+        .expect(201);
+
+      expect(response.body).toHaveProperty('message', 'Registration successful');
+      expect(response.body.registration).toHaveProperty('status', 'AWAITING_CONFIRMATION');
+      expect(response.body.registration).toHaveProperty('payment_transaction_id', 'TXN123456789');
       
       registrationId = response.body.registration._id;
     });
 
-    test('Should fail to register without payment screenshot for paid event', async () => {
+    test('Should fail to register without payment_transaction_id for paid event', async () => {
       // Create another user for this test
       const anotherUser = {
         name: 'Another User',
         email: 'another@test.com',
         password: 'Pass123!',
+        studentId: 'STU005',
         branch: 'ECE',
         year: 2
       };
@@ -238,20 +215,18 @@ describe('Registration API Tests', () => {
       const anotherToken = loginRes.body.token;
 
       const response = await request(app)
-        .post(`${baseUrl}/events/${generalEventId}/register`)
+        .post(`${baseUrl}/events/${paidEventId}/register`)
         .set('Authorization', `Bearer ${anotherToken}`)
         .expect(400);
 
-      expect(response.body).toHaveProperty('message', 'Payment screenshot required');
+      expect(response.body).toHaveProperty('message', 'Payment id required');
     });
 
     test('Should fail to register for same event twice', async () => {
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
-
       const response = await request(app)
         .post(`${baseUrl}/events/${paidEventId}/register`)
         .set('Authorization', `Bearer ${userToken}`)
-        .attach('image', testImagePath)
+        .send({ payment_transaction_id: 'TXN987654321' })
         .expect(400);
 
       expect(response.body).toHaveProperty('message', 'Already registered');
@@ -259,12 +234,10 @@ describe('Registration API Tests', () => {
 
     test('Should fail to register for non-existent event', async () => {
       const fakeEventId = new mongoose.Types.ObjectId();
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
       
       const response = await request(app)
         .post(`${baseUrl}/events/${fakeEventId}/register`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .attach('image', testImagePath)
+        .set('Authorization', `Bearer ${ieeeUserToken}`)
         .expect(404);
 
       expect(response.body).toHaveProperty('message', 'Event not found');
@@ -277,80 +250,17 @@ describe('Registration API Tests', () => {
     });
 
     test('Should fail if admin tries to register (not USER role)', async () => {
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
-      
       const response = await request(app)
         .post(`${baseUrl}/events/${generalEventId}/register`)
         .set('Authorization', `Bearer ${superAdminToken}`)
-        .attach('image', testImagePath)
         .expect(403);
     });
   });
 
-  describe('POST /events/:id/spot-register - Spot Registration', () => {
-    test('Should create spot registration successfully', async () => {
-      // Create a new user for spot registration
-      const spotUser = {
-        name: 'Spot User',
-        email: 'spot@test.com',
-        password: 'SpotPass123!',
-        branch: 'MECH',
-        year: 1
-      };
-
-      await request(app)
-        .post('/api/v1/auth/register')
-        .send(spotUser);
-
-      const loginRes = await request(app)
-        .post('/api/v1/auth/login')
-        .send({ email: spotUser.email, password: spotUser.password });
-      
-      const spotToken = loginRes.body.token;
-
-      const response = await request(app)
-        .post(`${baseUrl}/events/${generalEventId}/spot-register`)
-        .set('Authorization', `Bearer ${spotToken}`)
-        .expect(201);
-
-      expect(response.body).toHaveProperty('message', 'Spot registration recorded successfully');
-      expect(response.body.registration).toHaveProperty('status', 'AWAITING_CONFIRMATION');
-      expect(response.body.registration.payment).toHaveProperty('mode', 'OFFLINE');
-    });
-
-    test('Should fail spot registration if already registered', async () => {
-      const response = await request(app)
-        .post(`${baseUrl}/events/${ieeeEventId}/spot-register`)
-        .set('Authorization', `Bearer ${ieeeUserToken}`)
-        .expect(400);
-
-      expect(response.body).toHaveProperty('message', 'Already registered');
-    });
-
-    test('Should fail spot registration for non-existent event', async () => {
-      const fakeEventId = new mongoose.Types.ObjectId();
-      
-      const response = await request(app)
-        .post(`${baseUrl}/events/${fakeEventId}/spot-register`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .expect(404);
-
-      expect(response.body).toHaveProperty('message', 'Event not found');
-    });
-
-    test('Should fail spot registration without authentication', async () => {
-      const response = await request(app)
-        .post(`${baseUrl}/events/${generalEventId}/spot-register`)
-        .expect(401);
-    });
-
-    test('Should fail if admin tries spot registration', async () => {
-      const response = await request(app)
-        .post(`${baseUrl}/events/${generalEventId}/spot-register`)
-        .set('Authorization', `Bearer ${tempAdminToken}`)
-        .expect(403);
-    });
-  });
+  // Spot registration feature is currently disabled
+  // describe('POST /events/:id/spot-register - Spot Registration', () => {
+  //   ...tests commented out
+  // });
 
   describe('PATCH /registrations/:regId/status - Update Registration Status', () => {
     let testRegistrationId;
@@ -386,10 +296,10 @@ describe('Registration API Tests', () => {
       const response = await request(app)
         .patch(`${baseUrl}/registrations/${testRegistrationId}/status`)
         .set('Authorization', `Bearer ${tempAdminToken}`)
-        .send({ status: 'PENDING_PAYMENT' })
+        .send({ status: 'AWAITING_CONFIRMATION' })
         .expect(200);
 
-      expect(response.body.registration).toHaveProperty('status', 'PENDING_PAYMENT');
+      expect(response.body.registration).toHaveProperty('status', 'AWAITING_CONFIRMATION');
     });
 
     test('Should fail to update with invalid status', async () => {
@@ -473,6 +383,7 @@ describe('Registration API Tests', () => {
         name: 'New User',
         email: 'newuser@test.com',
         password: 'NewPass123!',
+        studentId: 'STU006',
         branch: 'CIVIL',
         year: 4
       };
@@ -507,26 +418,21 @@ describe('Registration API Tests', () => {
 
   describe('DELETE /events/:id/registrations/:userId - Cancel Registration', () => {
     test('Should cancel own registration', async () => {
-      // First create a registration to cancel
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
-      const createResponse = await request(app)
-        .post(`${baseUrl}/events/${paidEventId}/register`)
-        .set('Authorization', `Bearer ${userToken}`)
-        .attach('image', testImagePath)
-        .expect(201);
-
-      expect(createResponse.body).toHaveProperty('registration');
+      // First create a registration to cancel (use FREE event, no payment needed)
+      await request(app)
+        .post(`${baseUrl}/events/${generalEventId}/register`)
+        .set('Authorization', `Bearer ${ieeeUserToken}`);
 
       const response = await request(app)
-        .delete(`${baseUrl}/events/${paidEventId}/registrations/${userId}`)
-        .set('Authorization', `Bearer ${userToken}`)
+        .delete(`${baseUrl}/events/${generalEventId}/registrations/${ieeeUserId}`)
+        .set('Authorization', `Bearer ${ieeeUserToken}`)
         .expect(200);
 
       expect(response.body).toHaveProperty('message', 'Registration cancelled successfully');
     });
 
     test('Should fail to cancel non-existent registration', async () => {
-      // Don't create any registration, just try to cancel
+      // Try to cancel own non-existent registration (use the authenticated user's own ID)
       const response = await request(app)
         .delete(`${baseUrl}/events/${paidEventId}/registrations/${userId}`)
         .set('Authorization', `Bearer ${userToken}`)
@@ -547,13 +453,32 @@ describe('Registration API Tests', () => {
     });
 
     test('Should cancel registration as admin', async () => {
-      // First create a registration
-      await request(app)
-        .post(`${baseUrl}/events/${ieeeEventId}/register`)
-        .set('Authorization', `Bearer ${ieeeUserToken}`);
+      // First create a new registration for testing
+      const tempUser = {
+        name: 'Temp Cancel User',
+        email: 'tempcancel@test.com',
+        password: 'TempPass123!',
+        studentId: 'STU009',
+        branch: 'CSE',
+        year: 2
+      };
 
+      await request(app).post('/api/v1/auth/register').send(tempUser);
+      const tempLoginRes = await request(app)
+        .post('/api/v1/auth/login')
+        .send({ email: tempUser.email, password: tempUser.password });
+      
+      const tempUserId = tempLoginRes.body.user._id;
+      const tempToken = tempLoginRes.body.token;
+
+      // Register for FREE event (no payment needed)
+      await request(app)
+        .post(`${baseUrl}/events/${generalEventId}/register`)
+        .set('Authorization', `Bearer ${tempToken}`);
+
+      // Admin cancels the registration
       const response = await request(app)
-        .delete(`${baseUrl}/events/${ieeeEventId}/registrations/${ieeeUserId}`)
+        .delete(`${baseUrl}/events/${generalEventId}/registrations/${tempUserId}`)
         .set('Authorization', `Bearer ${superAdminToken}`)
         .expect(200);
 
@@ -569,11 +494,11 @@ describe('Registration API Tests', () => {
 
   describe('Event Registration Count', () => {
     test('Should increment registeredCount on registration', async () => {
-      // Create new event
+      // Create new FREE event
       const newEvent = {
         title: 'Count Test Event',
         description: 'Event to test registration count functionality',
-        type: 'GENERAL',
+        type: 'FREE',
         location: 'Test Hall',
         startDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(),
         endDate: new Date(Date.now() + 26 * 24 * 60 * 60 * 1000).toISOString(),
@@ -599,6 +524,7 @@ describe('Registration API Tests', () => {
         name: 'Count Test User',
         email: 'counttest@test.com',
         password: 'CountPass123!',
+        studentId: 'STU010',
         branch: 'EEE',
         year: 2
       };
@@ -612,13 +538,11 @@ describe('Registration API Tests', () => {
         .send({ email: countTestUser.email, password: countTestUser.password });
       
       const countTestToken = loginRes.body.token;
-      const testImagePath = path.join(__dirname, '..', 'uploads', 'test-payment.jpg');
 
-      // Register for event
+      // Register for event (no payment needed for FREE event)
       await request(app)
         .post(`${baseUrl}/events/${testEventId}/register`)
-        .set('Authorization', `Bearer ${countTestToken}`)
-        .attach('image', testImagePath);
+        .set('Authorization', `Bearer ${countTestToken}`);
 
       // Check updated count
       const updatedEvent = await request(app)

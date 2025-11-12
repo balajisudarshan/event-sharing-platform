@@ -1,5 +1,7 @@
 const Event = require("../models/Event");
 const Registration = require("../models/Registration");
+const cloudinary = require("../config/cloudinary");
+const fs = require("fs");
 const getEvents = async (req, res) => {
   try {
     const { type, upcoming, page = 1, limit = 10, search } = req.query;
@@ -68,6 +70,22 @@ const createEvent = async (req, res) => {
     const { title, description, type, location, startDate, endDate, capacity,thumbnail,qrCode } = req.body;
     const organizer = req.user;
 
+    let thumbnailUrl = null;
+    let qrCodeUrl = null;
+
+    if (req.files && req.files.thumbnail) {
+      const thumbnailFile = req.files.thumbnail[0];
+      const thumbnailResult = await cloudinary.uploader.upload(thumbnailFile.path, { folder: "event_thumbnails" });
+      thumbnailUrl = thumbnailResult.secure_url;
+      fs.unlinkSync(thumbnailFile.path);
+    }
+    if (req.files && req.files.qrCode) {
+      const qrCodeFile = req.files.qrCode[0];
+      const qrcoderesult = await cloudinary.uploader.upload(qrCodeFile.path, { folder: "event_qrcodes" });
+      qrCodeUrl = qrcoderesult.secure_url;
+      fs.unlinkSync(qrCodeFile.path);
+    }
+
     if (
       !(
         organizer.role === "SUPER_ADMIN" ||
@@ -89,8 +107,8 @@ const createEvent = async (req, res) => {
         .json({ message: "Description is required and must be at least 10 characters long" });
     }
 
-    if (!type || !["IEEE", "GENERAL"].includes(type.toUpperCase())) {
-      return res.status(400).json({ message: "Type must be 'IEEE' or 'GENERAL'" });
+    if (!type || !["IEEE", "GENERAL", "FREE"].includes(type.toUpperCase())) {
+      return res.status(400).json({ message: "Type must be 'IEEE', 'GENERAL', or 'FREE'" });
     }
 
     if (!location || location.trim().length < 3) {
@@ -112,6 +130,9 @@ const createEvent = async (req, res) => {
       return res.status(400).json({ message: "endDate must be after startDate" });
     }
 
+    if (start < new Date()) {
+      return res.status(400).json({ message: "Start date cannot be in the past" });
+    }
     const event = await Event.create({
       title: title.trim(),
       description: description.trim(),
@@ -122,8 +143,8 @@ const createEvent = async (req, res) => {
       capacity: capacity || null,
       organizer: req.user._id,
       registeredCount: 0,
-      thumbnail,
-      qrCode
+      thumbnailUrl,
+      qrCodeUrl
     });
 
     return res.status(201).json({
@@ -171,8 +192,8 @@ const updateEvent = async (req, res) => {
         .json({ message: "Description must be at least 10 characters long" });
     }
 
-    if (type && !["IEEE", "GENERAL"].includes(type.toUpperCase())) {
-      return res.status(400).json({ message: "Type must be 'IEEE' or 'GENERAL'" });
+    if (type && !["IEEE", "GENERAL", "FREE"].includes(type.toUpperCase())) {
+      return res.status(400).json({ message: "Type must be 'IEEE', 'GENERAL', or 'FREE'" });
     }
 
     if (startDate && endDate) {
@@ -193,6 +214,18 @@ const updateEvent = async (req, res) => {
     if (type) event.type = type.toUpperCase();
     if (location) event.location = location.trim();
     if (capacity !== undefined) event.capacity = capacity;
+    if (req.files && req.files.thumbnail) {
+      const thumbnailFile = req.files.thumbnail[0];
+      const thumbnailResult = await cloudinary.uploader.upload(thumbnailFile.path, { folder: "event_thumbnails" });
+      event.thumbnail = thumbnailResult.secure_url;
+      fs.unlinkSync(thumbnailFile.path);
+    }
+    if (req.files && req.files.qrCode) {
+      const qrCodeFile = req.files.qrCode[0];
+      const qrResult = await cloudinary.uploader.upload(qrCodeFile.path, { folder: "event_qrcodes" });
+      event.qrCode = qrResult.secure_url;
+      fs.unlinkSync(qrCodeFile.path);
+    }
 
     await event.save();
 

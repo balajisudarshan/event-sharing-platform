@@ -11,7 +11,7 @@ const eventSchema = mongoose.Schema({
     },
     type: {
         type: String,
-        enum : ['IEEE', 'GENERAL'],
+        enum : ['IEEE', 'GENERAL','FREE'],
         required: true
     },
     location: {

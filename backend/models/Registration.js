@@ -14,23 +14,18 @@ const registrationSchema = new Schema({
     },
     status:{
         type: String,
-        enum: ['REGISTERED', 'PENDING_PAYMENT', 'AWAITING_CONFIRMATION'],
-        default: 'PENDING_PAYMENT',
+        enum: ['REGISTERED', 'AWAITING_CONFIRMATION'],
+        default: 'AWAITING_CONFIRMATION',
         required: true
     },
-    payment:{
-        mode:{
-            type: String,
-            enum:['ONLINE', 'OFFLINE', 'NONE'],
-            default: 'NONE'
-        },
-        screenshotUrl:{
-            type: String
-        }
-    }
+    payment_transaction_id:{
+        type:String
+    },
+        
+    
 },{timestamps: true});
 
-// ☆*: .｡. o(≧▽≦)o .｡.:*☆ manaki duplicates vaddu raa
+// manaki duplicates vaddu raa
 registrationSchema.index({ event: 1, user: 1 }, { unique: true });
 
 module.exports = mongoose.model('Registration', registrationSchema);
