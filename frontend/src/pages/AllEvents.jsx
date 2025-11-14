@@ -15,7 +15,7 @@ const AllEvents = () => {
   const navigate = useNavigate()
   const handleDelete = async (eventId) => {
     try {
-      const deleted = await axios.delete(`${API_URL}/events/${eventId}`, { withCredentials: true })
+      const deleted = await axios.delete(`${API_URL}/events/${eventId}`)
       if (deleted) {
         setEvents(prev => prev.filter(ev => ev._id !== eventId))
         alert("Event deleted successfully")
@@ -28,11 +28,16 @@ const AllEvents = () => {
     }
   }
   useEffect(() => {
+    const token = localStorage.getItem("token")
     const fetchEvents = async () => {
-      try {
+       try {
         setIsLoading(true)
         setError('')
-        const res = await axios.get(`${API_URL}/events`, { withCredentials: true })
+        const res = await axios.get(`${API_URL}/events`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
         console.log(res.data.data)
         setEvents(res.data.data || [])
         const storedUser = localStorage.getItem("user")
@@ -204,9 +209,9 @@ const AllEvents = () => {
 
                   {/* Card Actions */}
                   <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-primary btn-sm" onClick={()=>navigate({
-                      to:'/getregistration/$id',
-                      params:{id:item._id}
+                    <button className="btn btn-primary btn-sm" onClick={() => navigate({
+                      to: '/getregistration/$id',
+                      params: { id: item._id }
                     })}>
                       View Details
                     </button>

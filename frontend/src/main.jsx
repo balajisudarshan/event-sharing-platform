@@ -4,13 +4,15 @@ import './index.css'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { RouterProvider, createRouter } from '@tanstack/react-router'
 import { routeTree } from './routeTree.gen'
-
+import App from './App.jsx'
 const router = createRouter({ routeTree })
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+
+    <RouterProvider router={router} />
+      
+    
+
   </StrictMode>,
 )

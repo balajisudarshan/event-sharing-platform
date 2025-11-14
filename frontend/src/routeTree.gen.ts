@@ -10,7 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
-import { Route as LoginRouteImport } from './routes/login'
+import { Route as AlleventsRouteImport } from './routes/allevents'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GetregistrationIdRouteImport } from './routes/getregistration/$id'
 
@@ -19,9 +19,9 @@ const RegisterRoute = RegisterRouteImport.update({
   path: '/register',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const AlleventsRoute = AlleventsRouteImport.update({
+  id: '/allevents',
+  path: '/allevents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -37,34 +37,34 @@ const GetregistrationIdRoute = GetregistrationIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/allevents': typeof AlleventsRoute
   '/register': typeof RegisterRoute
   '/getregistration/$id': typeof GetregistrationIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/allevents': typeof AlleventsRoute
   '/register': typeof RegisterRoute
   '/getregistration/$id': typeof GetregistrationIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/login': typeof LoginRoute
+  '/allevents': typeof AlleventsRoute
   '/register': typeof RegisterRoute
   '/getregistration/$id': typeof GetregistrationIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/register' | '/getregistration/$id'
+  fullPaths: '/' | '/allevents' | '/register' | '/getregistration/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/getregistration/$id'
-  id: '__root__' | '/' | '/login' | '/register' | '/getregistration/$id'
+  to: '/' | '/allevents' | '/register' | '/getregistration/$id'
+  id: '__root__' | '/' | '/allevents' | '/register' | '/getregistration/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LoginRoute: typeof LoginRoute
+  AlleventsRoute: typeof AlleventsRoute
   RegisterRoute: typeof RegisterRoute
   GetregistrationIdRoute: typeof GetregistrationIdRoute
 }
@@ -78,11 +78,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/allevents': {
+      id: '/allevents'
+      path: '/allevents'
+      fullPath: '/allevents'
+      preLoaderRoute: typeof AlleventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -104,7 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LoginRoute: LoginRoute,
+  AlleventsRoute: AlleventsRoute,
   RegisterRoute: RegisterRoute,
   GetregistrationIdRoute: GetregistrationIdRoute,
 }
