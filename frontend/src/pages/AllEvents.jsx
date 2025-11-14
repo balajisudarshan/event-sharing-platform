@@ -11,11 +11,16 @@ const AllEvents = () => {
   const [error, setError] = useState('')
   const [user, setUser] = useState([])
   const [showPopUp, setShowPopUp] = useState(false)
-
+  const [deleteEventId,setDeleteEventId] = useState(null)
   const navigate = useNavigate()
   const handleDelete = async (eventId) => {
+    const token = localStorage.getItem("token")
     try {
-      const deleted = await axios.delete(`${API_URL}/events/${eventId}`)
+      const deleted = await axios.delete(`${API_URL}/events/${eventId}`,{
+        headers:{
+          Authorization: `Bearer ${token}`
+        }
+      })
       if (deleted) {
         setEvents(prev => prev.filter(ev => ev._id !== eventId))
         alert("Event deleted successfully")
@@ -209,17 +214,22 @@ const AllEvents = () => {
 
                   {/* Card Actions */}
                   <div className="card-actions justify-end mt-4">
-                    <button className="btn btn-primary btn-sm" onClick={() => navigate({
-                      to: '/getregistration/$id',
-                      params: { id: item._id }
-                    })}>
-                      View Details
-                    </button>
+                    {user.role === "SUPER_ADMIN" || user.role === "TEMP_ADMIN "?
+                        <button className="btn btn-primary btn-sm" onClick={() => navigate({
+                          to: '/getregistration/$id',
+                          params: { id: item._id }
+                        })}>
+                          View Details
+                        </button>:null
+                    }
+                    
                     <button className="btn btn-outline btn-primary btn-sm">
                       Register
                     </button>
                     {
-                      user.role === "SUPER_ADMIN" || user.role === "TEMP_ADMIN" ? <button className="btn btn-outline btn-error btn-sm" onClick={() => setShowPopUp(true)}>
+                      user.role === "SUPER_ADMIN" || user.role === "TEMP_ADMIN" ? <button className="btn btn-outline btn-error btn-sm" onClick={() => {setShowPopUp(true)
+                                        setDeleteEventId(item._id)
+                      }}>
                         Delete
                       </button> : null
                     }
