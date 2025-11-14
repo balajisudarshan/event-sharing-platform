@@ -10,10 +10,14 @@ const ViewRegistrations = () => {
   const API_URL = import.meta.env.VITE_API_URL
 
   useEffect(() => {
+    const token = localStorage.getItem("token")
     const load = async () => {
       const res = await axios.get(
-        `${API_URL}/events/${id}/registrations`,
-        { withCredentials: true }
+        `${API_URL}/events/${id}/registrations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
       )
 
       console.log(res.data.data)
@@ -47,13 +51,12 @@ const ViewRegistrations = () => {
                 <td>{u.user.name}</td>
                 <td>{u.user.email}</td>
                 <td>
-                  <span className={`badge ${
-                    u.status === 'REGISTERED'
-                      ? 'badge-success'
-                      : u.status === 'AWAITING_CONFIRMATION'
+                  <span className={`badge ${u.status === 'REGISTERED'
+                    ? 'badge-success'
+                    : u.status === 'AWAITING_CONFIRMATION'
                       ? 'badge-warning'
                       : 'badge-info'
-                  }`}>
+                    }`}>
                     {u.status}
                   </span>
                 </td>
