@@ -5,11 +5,12 @@ const authRouter = require('./routes/userAuth.routes')
 const eventRouter = require('./routes/event.routes')
 const registrationRouter = require('./routes/registration.routes')
 const cors = require('cors')
+const { limiter } = require('./middleware/rateLimiter');
 const app = express()
 
 app.use(cors());
 
-
+app.use(limiter);
 
 app.use(express.json())
 
