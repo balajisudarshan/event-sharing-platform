@@ -1,10 +1,42 @@
-import React, { useState, useContext } from 'react'
+import React, { useState, useContext, useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
 import { AuthContext } from '../context/AuthContext'
 
 const NavBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const { isLoggedIn, user, logOut } = useContext(AuthContext)
+
+  
+  const navLink =
+    "relative text-base font-semibold transition-all duration-300 hover:text-white " +
+    "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 " +
+    "after:transition-all after:duration-300 hover:after:w-full"
+
+  const mobileLink =
+    "text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl px-4 py-2 transition-all"
+
+  const links = useMemo(() => {
+    if (!isLoggedIn) {
+      return [
+        { to: "/login", label: "Login" },
+        { to: "/register", label: "Register" }
+      ]
+    }
+
+    // logged-in users
+    const userLinks = [
+      { to: "/allevents", label: "All Events" }
+    ]
+
+    if (user?.role !== "USER") {
+      userLinks.push(
+        { to: "/manage-events", label: "Manage Event" },
+        { to: "/manage-users", label: "Users" }
+      )
+    }
+
+    return userLinks
+  }, [isLoggedIn, user])
 
   return (
     <>
@@ -18,58 +50,20 @@ const NavBar = () => {
         </div>
 
         <div className="flex-none">
-          
+
           {/* DESKTOP MENU */}
           <div className="hidden lg:flex lg:items-center lg:gap-8">
+            {links.map(link => (
+              <Link key={link.to} to={link.to} className={navLink}>
+                {link.label}
+              </Link>
+            ))}
 
-            {!isLoggedIn ? (
-              <>
-                <Link
-                  to="/login"
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white 
-                  after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 
-                  after:transition-all after:duration-300 hover:after:w-full">
-                  Login
-                </Link>
-
-                <Link
-                  to="/register"
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white 
-                  after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 
-                  after:transition-all after:duration-300 hover:after:w-full">
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/allevents"
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white 
-                  after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 
-                  after:transition-all after:duration-300 hover:after:w-full">
-                  All Events
-                </Link>
-
-                {user.role !== "USER" && (
-                  <Link
-                    to="/manage-events"
-                    className="relative text-base font-semibold transition-all duration-300 hover:text-white 
-                    after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 
-                    after:transition-all after:duration-300 hover:after:w-full">
-                    Manage Event
-                  </Link>
-                )}
-
-                <button
-                  onClick={logOut}
-                  className="relative text-base font-semibold transition-all duration-300 hover:text-white 
-                  after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-base-100 
-                  after:transition-all after:duration-300 hover:after:w-full">
-                  Logout
-                </button>
-              </>
+            {isLoggedIn && (
+              <button onClick={logOut} className={navLink}>
+                Logout
+              </button>
             )}
-
           </div>
 
           {/* MOBILE MENU BUTTON */}
@@ -83,7 +77,6 @@ const NavBar = () => {
               </svg>
             </button>
           </div>
-
         </div>
       </nav>
 
@@ -108,70 +101,32 @@ const NavBar = () => {
             </button>
           </div>
 
-          {/* Links */}
+          {/* MOBILE LINKS */}
           <ul className="menu p-4 space-y-2">
+            {links.map(link => (
+              <li key={link.to}>
+                <Link
+                  to={link.to}
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={mobileLink}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
 
-            <li>
-              <Link
-                to="/allevents"
-                onClick={() => setIsSidebarOpen(false)}
-                className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl transition-all px-4 py-2"
-              >
-                All Events
-              </Link>
-            </li>
-
-            {!isLoggedIn ? (
-              <>
-                <li>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl px-4 py-2"
-                  >
-                    Login
-                  </Link>
-                </li>
-
-                <li>
-                  <Link
-                    to="/register"
-                    onClick={() => setIsSidebarOpen(false)}
-                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl px-4 py-2"
-                  >
-                    Register
-                  </Link>
-                </li>
-              </>
-            ) : (
-              <>
-                {user.role !== "USER" && (
-                  <li>
-                    <Link
-                      to="/manage-events"
-                      onClick={() => setIsSidebarOpen(false)}
-                      className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl px-4 py-2"
-                    >
-                      Manage Event
-                    </Link>
-                  </li>
-                )}
-
-                <li>
-                  <button
-                    onClick={() => {
-                      logOut()
-                      setIsSidebarOpen(false)
-                    }}
-                    className="text-base font-medium text-base-100 hover:bg-primary-focus rounded-xl px-4 py-2 w-full text-left"
-                  >
-                    Logout
-                  </button>
-                </li>
-              </>
+            {isLoggedIn && (
+              <li>
+                <button
+                  onClick={() => { logOut(); setIsSidebarOpen(false); }}
+                  className={`${mobileLink} w-full text-left`}
+                >
+                  Logout
+                </button>
+              </li>
             )}
-
           </ul>
+
         </div>
       </div>
     </>
