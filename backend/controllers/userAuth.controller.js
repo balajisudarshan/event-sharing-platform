@@ -42,13 +42,16 @@ const loginUser = async (req, res) => {
     }
     const isPasswordValid = await bcrypt.compare(password, user.password)
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" })
+      return res.status(401).json({ message: "Invalid Credentials" })
     }
-    const { password: _, ...userWithoutPassword } = user.toObject();
-    const token = jwt.sign({ user: userWithoutPassword }, process.env.JWT_SECRET)
+    await User.findByIdAndUpdate(user._id,{isVerified:true},{runValidators:false})
+
+    const updatedUser = await User.findById(user._id).select('-password')
+
+    const token = jwt.sign({ user: updatedUser }, process.env.JWT_SECRET)
 
     
-    return res.status(200).json({ message: "Login successful", user: userWithoutPassword, token: token })
+    return res.status(200).json({ message: "Login successful", user: updatedUser, token: token })
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal server error" })
@@ -82,60 +85,33 @@ const promoteUser = async (req, res) => {
   const { until } = req.body;
 
   try {
-    if (req.user.role !== 'SUPER_ADMIN') {
+    if (req.user.role !== "SUPER_ADMIN") {
       return res.status(403).json({ message: "Unauthorized" });
     }
 
-    let untilDate;
-    if (role === 'TEMP_ADMIN') {
-      if (!until) {
-        return res.status(400).json({ message: "Until date is required for TEMP_ADMIN" });
-      }
-      untilDate = new Date(until);
-      if (isNaN(untilDate)) {
-        return res.status(400).json({ message: "Invalid date format" });
-      }
-      if (untilDate <= new Date()) {
-        return res.status(400).json({ message: "Until date must be in the future" });
-      }
-      if (untilDate > new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)) {
-        return res.status(400).json({ message: "Until date must be within 30 days" });
-      }
-    }
+    let updateData = {};
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    if (role === 'TEMP_ADMIN' && user.role === 'TEMP_ADMIN') {
-      return res.status(400).json({ message: "User is already a TEMP_ADMIN" });
-    }
-    if (role === 'TEMP_ADMIN' && user.role === 'SUPER_ADMIN') {
-      return res.status(400).json({ message: "User is already a SUPER_ADMIN" });
-    }
-
-    if (role === 'TEMP_ADMIN' && user.role === 'USER') {
-      user.role = 'TEMP_ADMIN';
-      user.promotedUntil = untilDate;
-    } else if (role === 'SUPER_ADMIN') {
-      if (user.role === 'SUPER_ADMIN') {
-        return res.status(400).json({ message: "User is already a SUPER_ADMIN" });
-      }
-      user.role = 'SUPER_ADMIN';
-      user.promotedUntil = null;
+    if (role === "USER") {
+      updateData = { role: "USER", promotedUntil: null };
+    } else if (role === "TEMP_ADMIN") {
+      const untilDate = new Date(until);
+      updateData = { role: "TEMP_ADMIN", promotedUntil: untilDate };
+    } else if (role === "SUPER_ADMIN") {
+      updateData = { role: "SUPER_ADMIN", promotedUntil: null };
     } else {
       return res.status(400).json({ message: "Invalid role" });
     }
 
-    await user.save();
-    return res.status(200).json({ message: `User promoted to ${user.role}` });
+    await User.findByIdAndUpdate(userId, updateData,{isVerified:false},{ runValidators: false });
 
+    return res.status(200).json({ message: `User updated to ${role}` });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "Internal server error", error: error.message });
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 
 const checkAuth = async (req, res) => {
@@ -157,11 +133,24 @@ const checkAuth = async (req, res) => {
 
 const getAllUsers = async(req,res)=>{
   try {
-    const users = await User.find().select('-password')
-    return res.status(200).json({users})
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 5
+
+    const order = {
+      SUPER_ADMIN :1,
+      TEMP_ADMIN:2,
+      USER:3
+    }
+
+    const skip = (page-1)*limit
+
+    const users = await User.find().select('-password').skip(skip).limit(limit)
+    // users = users.sort((a,b)=>order[a.role]-order[b.role])
+    const total = await User.countDocuments()
+    return res.status(200).json({users,total,page,pages:Math.ceil(total/limit)})
   } catch (error) {
     return res.status(500).json({message:"Internal Server Error"})
     console.log(error.message)
   }
 }
-module.exports = { registerUser, loginUser, getUserProfile, promoteUser, checkAuth };
+module.exports = { registerUser, loginUser, getUserProfile, promoteUser, checkAuth,getAllUsers };

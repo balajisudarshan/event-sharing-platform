@@ -213,7 +213,7 @@ const Register = () => {
           <div className="text-center">
             <p className="text-base-content/70">
               Already have an account?{' '}
-              <a href="/login" className="link link-primary font-semibold hover:link-hover">
+              <a href="/" className="link link-primary font-semibold hover:link-hover">
                 Login here
               </a>
             </p>

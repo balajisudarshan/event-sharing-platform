@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import Modal from '../Modal'
-import { useNavigate } from '@tanstack/react-router'
+import { useNavigate } from 'react-router-dom'
+import RegisterButton from '../components/RegisterButton'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -215,17 +216,14 @@ const AllEvents = () => {
                   {/* Card Actions */}
                   <div className="card-actions justify-end mt-4">
                     {user.role === "SUPER_ADMIN" || user.role === "TEMP_ADMIN "?
-                        <button className="btn btn-primary btn-sm" onClick={() => navigate({
-                          to: '/getregistration/$id',
-                          params: { id: item._id }
-                        })}>
+                        <button className="btn btn-primary btn-sm" onClick={() => navigate(`/getregistration/${item._id}`)}>
                           View Details
                         </button>:null
                     }
-                    
-                    <button className="btn btn-outline btn-primary btn-sm">
+                    <RegisterButton eventId={item._id}/>
+                    {/* <button className="btn btn-outline btn-primary btn-sm">
                       Register
-                    </button>
+                    </button> */}
                     {
                       user.role === "SUPER_ADMIN" || user.role === "TEMP_ADMIN" ? <button className="btn btn-outline btn-error btn-sm" onClick={() => {setShowPopUp(true)
                                         setDeleteEventId(item._id)

@@ -4,7 +4,9 @@ const User = require('../models/User')
 const AuthMiddleware = async(req,res,next)=>{
     // Support both cookie and Authorization header (for testing)
     
-
+    // if(req.method === "OPTIONS"){
+    //   return next()
+    // }
     try {
       
         let token;
@@ -17,10 +19,13 @@ const AuthMiddleware = async(req,res,next)=>{
         }
         const decoded = jwt.verify(token,process.env.JWT_SECRET)
         const user = await User.findById(decoded.user._id).select('-password')
+        
         if(!user){
             return res.status(401).json({message:"Unauthorized"})
         }
-        
+        if(!user.isVerified ){
+          return res.status(401).json({message:"Please login again"})
+        }
         // Auto-demote expired TEMP_ADMIN to USER
         if (user.role === 'TEMP_ADMIN' && user.promotedUntil && user.promotedUntil <= new Date()) {
             user.role = 'USER';

@@ -7,8 +7,20 @@ const registrationRouter = require('./routes/registration.routes')
 const cors = require('cors')
 const { limiter } = require('./middleware/rateLimiter');
 const app = express()
+const User = require('./models/User.js')
 
-app.use(cors());
+
+
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: "*", 
+  allowedHeaders: "*"
+}));
+
+
+
+
+
 
 app.use(limiter);
 
@@ -31,4 +43,18 @@ if (process.env.NODE_ENV !== 'test') {
   })
 }
 
+
+// async function updateOldUser(){
+//   await User.updateMany(
+//     {isVerified:{$exists:false}},
+//     {$set:{isVerified:false}}
+//   )
+//   console.log("Users updated")
+//   process.exit()
+// }
+
+// updateOldUser().catch(err=>{
+//   console.log(err)
+//   process.exit()
+// })
 module.exports = app

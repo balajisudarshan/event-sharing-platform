@@ -2,7 +2,9 @@ import React, { useEffect } from 'react'
 import { useState, useContext } from 'react'
 import axios from 'axios'
 import { AuthContext } from '../context/AuthContext'
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { useNavigate, Link } from 'react-router-dom'
+import toast, { Toaster } from 'react-hot-toast'
+
 
 const Login = () => {
   const [email, setEmail] = useState('')
@@ -13,9 +15,11 @@ const Login = () => {
   const { login, isLoggedIn } = useContext(AuthContext)
   const navigate = useNavigate()
 
-  useEffect(()=>{
-    navigate({to:'/allevents'})
-  },[isLoggedIn])
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate('/allevents')
+    }
+  }, [isLoggedIn, navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -27,16 +31,19 @@ const Login = () => {
         email,
         password,
       })
+      // toast.success(res.data.message)
+      console.log(res)
 
       login(res.data.user, res.data.token)
-      alert(res.data.message)
+      // alert(res.data.message)
       setError('')
       console.log(res)
 
       // Navigate to home page using router
-      navigate({ to: '/allevents' })
+      navigate('/allevents')
     } catch (error) {
-      console.log(error)
+      console.log(error?.response?.data?.message)
+      toast.error(error?.response?.data?.message)
       setError(error.response?.data?.message || error.message || 'Login failed. Please try again.')
     } finally {
       setIsLoading(false)
@@ -45,6 +52,16 @@ const Login = () => {
   return (
 
     <div className="min-h-screen bg-gradient-to-br from-primary/10 via-base-200 to-secondary/10 flex items-center justify-center p-4">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        }}
+      />
       <div className="card bg-base-100 shadow-2xl border border-base-300 sm:w-md w-100 mb-30 lg:mb-0 ">
         {!isLoggedIn ?
           <form className="card-body p-8" onSubmit={handleLogin}>
@@ -115,11 +132,11 @@ const Login = () => {
             </div>
           </form>
           : null}
+
       </div>
     </div>
   )
 }
 
-export const Route = createFileRoute('/')({
-  component: Login,
-})
+export default Login
+

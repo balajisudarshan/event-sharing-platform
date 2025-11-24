@@ -13,7 +13,7 @@ const {
 router.post(
   "/events/:id/register",
   AuthMiddleware,
-  authorizeRoles("USER"),
+  
   registerForEvent
 );
 

@@ -1,9 +1,9 @@
-import { useParams } from '@tanstack/react-router'
+import { useParams } from 'react-router-dom'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 
 const ViewRegistrations = () => {
-  const { id } = useParams({ from: '/getregistration/$id' })
+  const { id } = useParams()
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
 

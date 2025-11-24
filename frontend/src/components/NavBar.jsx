@@ -1,5 +1,5 @@
 import React, { useState, useContext, useMemo } from 'react'
-import { Link } from '@tanstack/react-router'
+import { Link } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
 const NavBar = () => {
@@ -31,7 +31,7 @@ const NavBar = () => {
     if (user?.role !== "USER") {
       userLinks.push(
         { to: "/manage-events", label: "Manage Event" },
-        { to: "/manage-users", label: "Users" }
+        { to: "/allUsers", label: "Users" }
       )
     }
 
