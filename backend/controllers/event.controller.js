@@ -296,7 +296,7 @@ const getEventRegistrations = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const registrations = await Registration.find({ event: eventId })
-      .populate("user", "name email")
+      .populate("user", "name email studentId branch year isIEEE IEEE_ID")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
