@@ -9,7 +9,7 @@ const ViewRegistrations = () => {
   const [loading, setLoading] = useState(true)
   const [showPopUp, setShowPopUp] = useState(false)
   const [user, setUser] = useState(null)
-  const [status,setStatus] = useState('AWAITING_CONFIRMATION')
+  const [status, setStatus] = useState('AWAITING_CONFIRMATION')
   const API_URL = import.meta.env.VITE_API_URL
 
   useEffect(() => {
@@ -29,6 +29,21 @@ const ViewRegistrations = () => {
     }
     load()
   }, [id])
+  const handleUpdate = async () => {
+    const token = localStorage.getItem("token")
+
+    console.log(user)
+    try {
+      const res = await axios.patch(`${API_URL}/registrations/${user._id}/status`, { status }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <div className='flex justify-center items-center flex-col mt-5'>
@@ -69,6 +84,7 @@ const ViewRegistrations = () => {
                     onClick={() => {
                       setShowPopUp(true)
                       setUser(u)
+                      setStatus(u.status)
                     }}
                   >
                     View
@@ -135,10 +151,10 @@ const ViewRegistrations = () => {
                   <p className='text-lg font-mono text-base-content wrap-break-word'>{user?.payment_transaction_id || '—'}</p>
                 </div>
                 <div className='p-3 rounded-2xl flex gap-2 items-center'>
-                  <input type='checkbox' className='checkbox checkbox-accent checkbox-sm space-y-2' onChange={(e)=>{
-                    if(e.target.checked){
+                  <input type='checkbox' checked={status === "REGISTERED"}  className='checkbox checkbox-accent checkbox-sm space-y-2' onChange={(e) => {
+                    if (e.target.checked) {
                       setStatus("REGISTERED")
-                    }else{
+                    } else {
                       setStatus("AWAITING_CONFIRMATION")
                     }
                   }}></input>
@@ -156,7 +172,7 @@ const ViewRegistrations = () => {
                 >
                   Close
                 </button>
-                <button className='btn btn-primary'>
+                <button className='btn btn-primary' onClick={handleUpdate}>
                   Update Details
                 </button>
               </div>

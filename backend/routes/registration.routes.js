@@ -25,7 +25,7 @@ router.post(
 // );
 
 router.patch(
-  "/registrations/:regId/status",
+  "/:regId/status",
   AuthMiddleware,
   authorizeRoles("TEMP_ADMIN", "SUPER_ADMIN"),
   updateRegistrationStatus
